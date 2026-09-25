@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextNexus // Communication Platform</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Theme derived from IMG_5723_2.png */
+            --bg-base: #000000;
+            --bg-surface: #0a0a0a;
+            --glass-panel: #121212;
+            --glass-border: #262626;
+            --glass-hover: #1e1e1e;
+            
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-tertiary: #737373;
+            
+            --accent-primary: #ffffff;
+            --accent-border: #404040;
+            --accent-success: #10b981; /* Status green from image */
+            --accent-success-bg: rgba(16, 185, 129, 0.1);
+
+            --font-sans: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0;
+            user-select: none; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .platform-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-base);
+        }
+
+        /* SIDEBAR */
+        .rooms-sidebar {
+            width: 300px;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 16px;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: var(--glass-hover);
+            border-color: var(--accent-border);
+        }
+
+        .action-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .code-join-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .code-input {
+            flex: 1;
+            background: var(--bg-base);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            text-align: center;
+            letter-spacing: 2px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .code-input:focus {
+            border-color: var(--text-secondary);
+        }
+
+        .room-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .room-card {
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-card:hover {
+            background: var(--glass-hover);
+            border-color: var(--glass-border);
+        }
+
+        .room-card.active {
+            background: var(--glass-panel);
+            border-color: var(--accent-border);
+        }
+
+        .room-card.global-card {
+            border: 1px dashed var(--glass-border);
+            margin-bottom: 4px;
+        }
+
+        .room-card.global-card.active {
+            border-style: solid;
+            border-color: var(--text-secondary);
+        }
+
+        .room-info h4 {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .room-info span {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-tertiary);
+        }
+
+        .room-badge {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            background: var(--glass-panel);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
+        }
+
+        /* USER PROFILE CARD AT BOTTOM OF SIDEBAR */
+        .user-profile-bar {
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--glass-panel);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .profile-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .profile-role-tag {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--text-secondary);
+        }
+
+        /* CHAT VIEWPORT */
+        .chat-viewport {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-base);
+        }
+
+        .chat-header {
+            height: 60px;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-title h3 {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .code-tag {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            background: var(--glass-panel);
+            border: 1px solid var(--glass-border);
+            padding: 3px 10px;
+            border-radius: 6px;
+            color: var(--text-secondary);
+        }
+
+        .messages-area {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .msg-row {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            animation: fadeIn 0.2s var(--ease-out);
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(6px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .msg-row.me {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .msg-row.other {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .msg-meta {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-tertiary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ROLE BADGES */
+        .role-badge {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 500;
+            background: var(--glass-panel);
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .role-badge.owner {
+            background: var(--accent-success-bg);
+            color: var(--accent-success);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .role-badge.admin {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .msg-bubble {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.5;
+            user-select: text;
+            word-break: break-word;
+            border: 1px solid var(--glass-border);
+        }
+
+        .msg-row.me .msg-bubble {
+            background: var(--glass-hover);
+            color: var(--text-primary);
+            border-color: var(--accent-border);
+        }
+
+        .msg-row.other .msg-bubble {
+            background: var(--glass-panel);
+            color: var(--text-primary);
+        }
+
+        .input-panel {
+            padding: 16px 24px;
+            border-top: 1px solid var(--glass-border);
+            background: var(--bg-surface);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .msg-input {
+            flex: 1;
+            background: var(--bg-base);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .msg-input:focus {
+            border-color: var(--text-secondary);
+        }
+
+        .send-btn {
+            background: var(--text-primary);
+            color: var(--bg-base);
+            border: 1px solid var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #d4d4d4;
+            border-color: #d4d4d4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="platform-container">
+        <!-- SIDEBAR -->
+        <div class="rooms-sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Channels</span>
+                <button class="action-btn" onclick="createNewGroup()">+ New</button>
+            </div>
+
+            <div class="code-join-box">
+                <input type="text" id="join-code-input" class="code-input" placeholder="6-DIGIT CODE" maxlength="6">
+                <button class="action-btn" onclick="joinGroupByCode()">Join</button>
+            </div>
+
+            <div class="room-list" id="room-list-container"></div>
+
+            <!-- CURRENT PROFILE STATUS -->
+            <div class="user-profile-bar">
+                <div class="profile-details">
+                    <span class="profile-name" id="my-profile-name">Loading...</span>
+                    <span class="profile-role-tag" id="my-profile-role">ROLE // MEMBER</span>
+                </div>
+                <a href="index.html" class="action-btn" style="text-decoration:none;">Config</a>
+            </div>
+        </div>
+
+        <!-- CHAT VIEWPORT -->
+        <div class="chat-viewport">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <h3 id="current-room-name">Global Chat</h3>
+                    <span id="current-room-code" class="code-tag">#GLOBAL</span>
+                </div>
+                
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button id="leave-room-btn" class="action-btn danger" onclick="leaveActiveRoom()" style="display: none;">Leave</button>
+                    <button id="delete-room-btn" class="action-btn danger" onclick="deleteActiveRoom()" style="display: none;">Delete</button>
+                </div>
+            </div>
+
+            <div class="messages-area" id="messages-area">
+                <div style="text-align: center; color: var(--text-tertiary); font-family: var(--font-mono); font-size: 12px; margin-top: 40px;">
+                    Connecting to RTDB cluster...
+                </div>
+            </div>
+
+            <div class="input-panel">
+                <input type="text" id="message-input" class="msg-input" placeholder="Transmit commands..." onkeydown="if(event.key==='Enter') sendMessage()">
+                <button id="send-button" class="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SERVICES -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { 
+            getFirestore, collection, doc, setDoc, getDoc, deleteDoc, addDoc, query, orderBy, onSnapshot, serverTimestamp 
+        } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAO_ffupJOIMPE9m4ARtaqSzC1vGDkIAco",
+            authDomain: "nexus-web-development-official.firebaseapp.com",
+            projectId: "nexus-web-development-official"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const GLOBAL_CODE = 'GLOBAL';
+        const GLOBAL_NAME = 'Global Chat';
+
+        let currentUser = null;
+        let currentUserProfile = { username: 'Guest', role: 'Member' };
+        let activeRoomId = GLOBAL_CODE;
+        let activeRoomCreator = null;
+        let messagesUnsubscribe = null;
+        let myRooms = JSON.parse(localStorage.getItem('textnexus_joined_rooms') || '[]');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserProfile(user);
+            } else {
+                try {
+                    const anonCred = await signInAnonymously(auth);
+                    currentUser = anonCred.user;
+                    currentUserProfile = {
+                        username: 'Guest_' + currentUser.uid.substring(0, 4),
+                        role: 'Member'
+                    };
+                    updateProfileUI();
+                } catch (e) {
+                    console.error("Anonymous auth failed:", e);
+                }
+            }
+
+            renderRoomList();
+            if (activeRoomId) updateHeaderButtons();
+        });
+
+        async function loadUserProfile(user) {
+            try {
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+                if (userSnap.exists()) {
+                    currentUserProfile = userSnap.data();
+                } else {
+                    currentUserProfile = {
+                        username: user.email ? user.email.split('@')[0] : 'User_' + user.uid.substring(0, 4),
+                        role: 'Owner'
+                    };
+                    await setDoc(doc(db, "users", user.uid), currentUserProfile, { merge: true });
+                }
+            } catch (err) {
+                console.error("Profile load error:", err);
+                currentUserProfile = {
+                    username: user.email ? user.email.split('@')[0] : 'User',
+                    role: 'Member'
+                };
+            }
+            updateProfileUI();
+        }
+
+        function updateProfileUI() {
+            document.getElementById('my-profile-name').textContent = currentUserProfile.username || 'Anonymous';
+            document.getElementById('my-profile-role').textContent = `ROLE // ${(currentUserProfile.role || 'Member').toUpperCase()}`;
+        }
+
+        function generateCode() {
+            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let code = '';
+            for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+            return code;
+        }
+
+        window.createNewGroup = async function() {
+            const roomName = prompt("Enter Group Name:", "Nexus Node");
+            if (!roomName) return;
+
+            const roomCode = generateCode();
+            try {
+                await setDoc(doc(db, "rooms", roomCode), {
+                    name: roomName,
+                    code: roomCode,
+                    createdBy: currentUser ? (currentUser.email || currentUser.uid) : 'Guest',
+                    createdAt: serverTimestamp()
+                });
+                saveAndSwitchRoom(roomCode, roomName);
+            } catch (err) {
+                alert("Failed to create node: " + err.message);
+            }
+        };
+
+        window.joinGroupByCode = async function() {
+            const codeInput = document.getElementById('join-code-input');
+            const code = codeInput.value.trim().toUpperCase();
+
+            if (code === GLOBAL_CODE) {
+                switchRoom(GLOBAL_CODE, GLOBAL_NAME);
+                codeInput.value = '';
+                return;
+            }
+
+            if (code.length !== 6) {
+                alert("Please enter a valid 6-digit access code.");
+                return;
+            }
+
+            try {
+                const roomDoc = await getDoc(doc(db, "rooms", code));
+                if (roomDoc.exists()) {
+                    saveAndSwitchRoom(code, roomDoc.data().name);
+                    codeInput.value = '';
+                } else {
+                    alert("Node not found in registry.");
+                }
+            } catch (err) {
+                console.error("Join room error:", err);
+            }
+        };
+
+        function saveAndSwitchRoom(code, name) {
+            if (code !== GLOBAL_CODE && !myRooms.some(r => r.code === code)) {
+                myRooms.push({ code, name });
+                localStorage.setItem('textnexus_joined_rooms', JSON.stringify(myRooms));
+            }
+            renderRoomList();
+            switchRoom(code, name);
+        }
+
+        function renderRoomList() {
+            const container = document.getElementById('room-list-container');
+            container.innerHTML = '';
+
+            const globalCard = document.createElement('div');
+            globalCard.className = `room-card global-card ${activeRoomId === GLOBAL_CODE ? 'active' : ''}`;
+            globalCard.onclick = () => switchRoom(GLOBAL_CODE, GLOBAL_NAME);
+            globalCard.innerHTML = `
+                <div class="room-info">
+                    <h4>${GLOBAL_NAME}</h4>
+                    <span>#GLOBAL</span>
+                </div>
+                <span class="room-badge">PUBLIC</span>
+            `;
+            container.appendChild(globalCard);
+
+            myRooms.forEach(room => {
+                const card = document.createElement('div');
+                card.className = `room-card ${activeRoomId === room.code ? 'active' : ''}`;
+                card.onclick = () => switchRoom(room.code, room.name);
+                card.innerHTML = `
+                    <div class="room-info">
+                        <h4>${room.name}</h4>
+                        <span>#${room.code}</span>
+                    </div>
+                    <span class="room-badge">JOINED</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function switchRoom(code, name) {
+            activeRoomId = code;
+            renderRoomList();
+
+            document.getElementById('current-room-name').textContent = name;
+            document.getElementById('current-room-code').textContent = `#${code}`;
+
+            if (code !== GLOBAL_CODE) {
+                try {
+                    const roomSnap = await getDoc(doc(db, "rooms", code));
+                    activeRoomCreator = roomSnap.exists() ? roomSnap.data().createdBy : null;
+                } catch (e) {
+                    activeRoomCreator = null;
+                }
+            } else {
+                activeRoomCreator = null;
+            }
+
+            updateHeaderButtons();
+            listenToMessages(code);
+        }
+
+        function updateHeaderButtons() {
+            const leaveBtn = document.getElementById('leave-room-btn');
+            const deleteBtn = document.getElementById('delete-room-btn');
+
+            if (!activeRoomId || activeRoomId === GLOBAL_CODE) {
+                leaveBtn.style.display = 'none';
+                deleteBtn.style.display = 'none';
+                return;
+            }
+
+            leaveBtn.style.display = 'inline-flex';
+            
+            const myIdent = currentUser ? (currentUser.email || currentUser.uid) : '';
+            if (myIdent && activeRoomCreator === myIdent) {
+                deleteBtn.style.display = 'inline-flex';
+            } else {
+                deleteBtn.style.display = 'none';
+            }
+        }
+
+        window.leaveActiveRoom = function() {
+            if (!activeRoomId || activeRoomId === GLOBAL_CODE) return;
+            myRooms = myRooms.filter(r => r.code !== activeRoomId);
+            localStorage.setItem('textnexus_joined_rooms', JSON.stringify(myRooms));
+            switchRoom(GLOBAL_CODE, GLOBAL_NAME);
+        };
+
+        window.deleteActiveRoom = async function() {
+            if (!activeRoomId || activeRoomId === GLOBAL_CODE) return;
+            if (!confirm("Confirm database node deletion?")) return;
+
+            try {
+                await deleteDoc(doc(db, "rooms", activeRoomId));
+                myRooms = myRooms.filter(r => r.code !== activeRoomId);
+                localStorage.setItem('textnexus_joined_rooms', JSON.stringify(myRooms));
+                switchRoom(GLOBAL_CODE, GLOBAL_NAME);
+            } catch (err) {
+                alert("Failed to delete node: " + err.message);
+            }
+        };
+
+        function listenToMessages(roomCode) {
+            if (messagesUnsubscribe) messagesUnsubscribe();
+
+            const messagesArea = document.getElementById('messages-area');
+            messagesArea.innerHTML = `<div style="text-align:center; color:var(--text-tertiary); font-family:var(--font-mono); font-size:11px;">Initializing data stream...</div>`;
+
+            const q = query(collection(db, "rooms", roomCode, "messages"), orderBy("createdAt", "asc"));
+
+            messagesUnsubscribe = onSnapshot(q, (snapshot) => {
+                messagesArea.innerHTML = '';
+
+                if (snapshot.empty) {
+                    messagesArea.innerHTML = `<div style="text-align:center; color:var(--text-tertiary); font-family:var(--font-mono); font-size:12px; margin-top:40px;">System cluster active. No database traffic detected.</div>`;
+                    return;
+                }
+
+                snapshot.docs.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const isMe = currentUser && (data.senderUid === currentUser.uid || data.senderEmail === currentUser.email);
+                    
+                    const row = document.createElement('div');
+                    row.className = `msg-row ${isMe ? 'me' : 'other'}`;
+
+                    let timeStr = 'SYNCING';
+                    if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+                        timeStr = new Date(data.createdAt.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    const username = data.username || 'Anonymous';
+                    const role = data.role || 'Member';
+                    const roleClass = role.toLowerCase();
+
+                    row.innerHTML = `
+                        <div class="msg-meta">
+                            <span class="role-badge ${roleClass}">${role}</span>
+                            <span>${escapeHtml(username)}</span>
+                            <span>${timeStr}</span>
+                        </div>
+                        <div class="msg-bubble">${escapeHtml(data.text)}</div>
+                    `;
+
+                    messagesArea.appendChild(row);
+                });
+
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }, (error) => {
+                console.error("Firestore listener error:", error);
+                messagesArea.innerHTML = `<div style="text-align:center; color:#ef4444; font-family:var(--font-mono); font-size:12px; margin-top:40px;">Connection failure. Check RTDB rules.</div>`;
+            });
+        }
+
+        window.sendMessage = async function() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+
+            if (!text || !activeRoomId) return;
+
+            input.value = '';
+
+            try {
+                await addDoc(collection(db, "rooms", activeRoomId, "messages"), {
+                    text: text,
+                    senderUid: currentUser ? currentUser.uid : 'anon',
+                    senderEmail: currentUser ? (currentUser.email || 'anon') : 'anon',
+                    username: currentUserProfile.username || 'Anonymous',
+                    role: currentUserProfile.role || 'Owner',
+                    createdAt: serverTimestamp()
+                });
+            } catch (err) {
+                console.error("Error sending message:", err);
+                alert("Transmission failed: " + err.message);
+            }
+        };
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        switchRoom(GLOBAL_CODE, GLOBAL_NAME);
+    </script>
+</body>
+</html>
