@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telemetry // TextNexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --card-bg: rgba(12, 12, 12, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            padding: 24px;
+            overflow-x: hidden;
+            animation: fadeIn 0.6s var(--ease) forwards;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.99); } to { opacity: 1; transform: scale(1); } }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--card-border);
+        }
+
+        .header-title h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
+        .header-title p { font-size: 12px; color: var(--text-secondary); }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(30px);
+        }
+
+        .card-title {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Progress Rings / Bars */
+        .telemetry-row { margin-bottom: 16px; }
+        .telemetry-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+        .progress-bg {
+            width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: #fff; border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            transition: width 1s ease-in-out;
+        }
+
+        /* Server Region Grid */
+        .nodes-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+        }
+
+        .node-box {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px; padding: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .node-name { font-size: 11px; font-weight: 500; }
+        .node-ms { font-size: 11px; font-family: var(--font-mono); color: #10b981; }
+
+        /* Terminal Console Box */
+        .terminal-box {
+            background: #050505;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #888;
+            height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-line { margin-bottom: 6px; display: flex; gap: 12px; }
+        .log-time { color: #444; }
+        .log-tag { color: #fff; font-weight: 600; }
+        .log-msg { color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-title">
+            <h2>Real-Time Telemetry</h2>
+            <p>Live resource usage, global latency matrices, and stream monitoring.</p>
+        </div>
+    </div>
+
+    <!-- MAIN METRIC ROW -->
+    <div class="grid-layout">
+        
+        <!-- HARDWARE LOAD -->
+        <div class="card">
+            <div class="card-title">Compute Cluster Load</div>
+            
+            <div class="telemetry-row">
+                <div class="telemetry-label"><span>H100 Tensor Allocation</span><span>78%</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width: 78%;"></div></div>
+            </div>
+
+            <div class="telemetry-row">
+                <div class="telemetry-label"><span>VRAM Consumption</span><span>42.1 GB / 80 GB</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width: 52%;"></div></div>
+            </div>
+
+            <div class="telemetry-row" style="margin-bottom:0;">
+                <div class="telemetry-label"><span>Quantum Cache Buffer</span><span>14%</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width: 14%;"></div></div>
+            </div>
+        </div>
+
+        <!-- GLOBAL NODES -->
+        <div class="card">
+            <div class="card-title">Global Node Health</div>
+            <div class="nodes-grid">
+                <div class="node-box">
+                    <span class="node-name">US-East (N. Virginia)</span>
+                    <span class="node-ms">1.1ms</span>
+                </div>
+                <div class="node-box">
+                    <span class="node-name">EU-West (Frankfurt)</span>
+                    <span class="node-ms">8.4ms</span>
+                </div>
+                <div class="node-box">
+                    <span class="node-name">AP-East (Tokyo)</span>
+                    <span class="node-ms">12.2ms</span>
+                </div>
+                <div class="node-box">
+                    <span class="node-name">SA-East (São Paulo)</span>
+                    <span class="node-ms">18.9ms</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- NETWORK THROUGHPUT -->
+        <div class="card">
+            <div class="card-title">Inbound / Outbound Pipe</div>
+            <div style="font-size: 32px; font-weight: 600; margin-top: 10px; color: #fff;">
+                942 <span style="font-size: 14px; font-weight: 400; color: #888;">Mbps</span>
+            </div>
+            <p style="font-size: 11px; color: #666; margin-top: 6px; font-family: var(--font-mono);">
+                AES-256 Quantum Shield Encrypted
+            </p>
+        </div>
+
+    </div>
+
+    <!-- LIVE STREAM TERMINAL -->
+    <div class="card">
+        <div class="card-title">System Stream Log</div>
+        <div class="terminal-box" id="terminal-stream">
+            <div class="log-line"><span class="log-time">08:24:01.002</span> <span class="log-tag">[SYS]</span> <span class="log-msg">Neural engine weight sync complete.</span></div>
+            <div class="log-line"><span class="log-time">08:24:02.140</span> <span class="log-tag">[AUTH]</span> <span class="log-msg">Executive token validated (Sovereign Level).</span></div>
+            <div class="log-line"><span class="log-time">08:24:05.891</span> <span class="log-tag">[NET]</span> <span class="log-msg">Tokyo node latency reduced by 1.4ms via fiber re-route.</span></div>
+        </div>
+    </div>
+
+</body>
+</html>
